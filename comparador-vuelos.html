@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Comparador de Vuelos Chile</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: system-ui, sans-serif; background: #0f1117; color: #e2e8f0; min-height: 100vh; padding: 2rem 1rem; }
+.container { max-width: 900px; margin: 0 auto; }
+h1 { font-size: 22px; font-weight: 600; margin-bottom: 4px; }
+.subtitle { font-size: 13px; color: #94a3b8; margin-bottom: 1.5rem; }
+.info { background: #1e293b; border: 1px solid #334155; border-radius: 10px; padding: 12px 16px; margin-bottom: 1.25rem; font-size: 13px; color: #7dd3fc; display: flex; align-items: flex-start; gap: 10px; }
+.card { background: #1e293b; border-radius: 10px; border: 1px solid #334155; padding: 1rem 1.25rem; margin-bottom: 1.25rem; }
+.card h3 { font-size: 14px; font-weight: 500; margin-bottom: 12px; color: #94a3b8; }
+.fl { display: flex; flex-direction: column; gap: 4px; margin-bottom: 10px; }
+.fl label { font-size: 12px; color: #64748b; }
+.fl input, .fl select { font-size: 13px; border-radius: 8px; border: 1px solid #334155; background: #0f1117; color: #e2e8f0; width: 100%; padding: 8px 10px; }
+.fl input:focus, .fl select:focus { outline: none; border-color: #3b82f6; }
+.g4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+@media(max-width:600px){ .g4 { grid-template-columns: 1fr 1fr; } }
+.clbl { font-size: 12px; color: #64748b; margin-bottom: 6px; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+.chip { font-size: 11px; padding: 4px 10px; border-radius: 20px; border: 1px solid #334155; background: #0f1117; color: #94a3b8; cursor: pointer; transition: all 0.12s; user-select: none; }
+.chip:hover { border-color: #3b82f6; color: #7dd3fc; }
+.chip.on { border-color: #3b82f6; color: #7dd3fc; background: #1e3a5f; font-weight: 500; }
+.btn { background: #3b82f6; color: #fff; border: none; border-radius: 8px; padding: 11px 20px; font-size: 14px; font-weight: 500; cursor: pointer; width: 100%; transition: background 0.15s; }
+.btn:hover { background: #2563eb; }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.loading-bar { height: 3px; background: #1e3a5f; border-radius: 2px; overflow: hidden; margin-bottom: 6px; }
+.lf { height: 100%; background: #3b82f6; animation: ld 1.5s ease-in-out infinite; }
+@keyframes ld { 0%{width:0%;margin-left:0} 50%{width:60%;margin-left:20%} 100%{width:0%;margin-left:100%} }
+.prog { font-size: 12px; color: #64748b; text-align: center; margin-bottom: 1rem; }
+.err { background: #2d1b1b; border: 1px solid #7f1d1d; border-radius: 8px; padding: 12px 16px; font-size: 13px; color: #fca5a5; margin-bottom: 1rem; }
+.metrics { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 1.25rem; }
+@media(max-width:500px){ .metrics { grid-template-columns: 1fr; } }
+.mc { background: #1e293b; border-radius: 8px; padding: 12px 14px; }
+.mc .lb { font-size: 12px; color: #64748b; margin-bottom: 4px; }
+.mc .vl { font-size: 20px; font-weight: 600; }
+.mc .sb { font-size: 11px; color: #64748b; margin-top: 2px; }
+.gr { color: #4ade80; } .am { color: #fbbf24; } .bl { color: #60a5fa; }
+.cal-wrap { background: #1e293b; border-radius: 10px; border: 1px solid #334155; padding: 1rem 1.25rem; margin-bottom: 1.25rem; }
+.cal-wrap h3 { font-size: 14px; font-weight: 500; margin-bottom: 10px; color: #94a3b8; }
+.leg { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; font-size: 12px; color: #64748b; flex-wrap: wrap; }
+.ld2 { width: 10px; height: 10px; border-radius: 2px; }
+.cal { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; }
+.dh { font-size: 10px; color: #64748b; text-align: center; padding-bottom: 5px; }
+.dc { border-radius: 5px; padding: 5px 2px; text-align: center; border: 1px solid transparent; }
+.dc .dn { font-size: 10px; color: #64748b; margin-bottom: 1px; }
+.dc .dp { font-size: 10px; font-weight: 500; }
+.dc.best { background: #14532d; } .dc.best .dp { color: #4ade80; }
+.dc.chp { background: #14532d; opacity: 0.6; } .dc.chp .dp { color: #4ade80; }
+.dc.mid { background: #422006; opacity: 0.9; } .dc.mid .dp { color: #fbbf24; }
+.dc.exp { background: #450a0a; opacity: 0.8; } .dc.exp .dp { color: #f87171; }
+.bt { font-size: 9px; background: #16a34a; color: #fff; border-radius: 3px; padding: 1px 3px; margin-top: 2px; display: inline-block; }
+.tw { background: #1e293b; border-radius: 10px; border: 1px solid #334155; overflow: hidden; }
+.th2 { padding: 12px 16px; border-bottom: 1px solid #334155; font-size: 14px; font-weight: 500; color: #94a3b8; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+th { text-align: left; padding: 9px 14px; color: #64748b; font-weight: 400; font-size: 12px; border-bottom: 1px solid #334155; }
+td { padding: 9px 14px; border-bottom: 1px solid #1e293b; vertical-align: middle; }
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: #0f1117; }
+.pill { padding: 3px 8px; border-radius: 20px; font-weight: 500; font-size: 12px; }
+.pill.g { background: #14532d; color: #4ade80; }
+.pill.m { background: #422006; color: #fbbf24; }
+.pill.r { background: #450a0a; color: #f87171; }
+.bbest { font-size: 10px; background: #3b82f6; color: #fff; border-radius: 4px; padding: 2px 6px; margin-left: 6px; }
+.empty { text-align: center; padding: 3rem 1rem; color: #64748b; font-size: 14px; }
+.warn { background: #2d1f00; border: 1px solid #78350f; border-radius: 8px; padding: 8px 12px; margin-bottom: 12px; font-size: 12px; color: #fbbf24; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>✈️ Comparador de Vuelos Chile</h1>
+  <p class="subtitle">Precios reales de Google Flights · SerpApi + Proxy Vercel</p>
+
+  <div class="info">
+    ℹ️ API key gratuita en <a href="https://serpapi.com/dashboard" style="color:#7dd3fc" target="_blank">serpapi.com/dashboard</a> · 100 búsquedas/mes gratis
+  </div>
+
+  <div class="card">
+    <h3>🔑 API Key de SerpApi</h3>
+    <div class="fl">
+      <label>API Key</label>
+      <input type="password" id="apiKey" placeholder="Pega tu SerpApi key aquí...">
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>📍 Ruta y fechas</h3>
+
+    <div class="clbl">Origen</div>
+    <div class="chips" id="oc">
+      <div class="chip on" data-v="SCL" onclick="pick(this,'o')">SCL – Santiago</div>
+      <div class="chip" data-v="PMC" onclick="pick(this,'o')">PMC – Puerto Montt</div>
+      <div class="chip" data-v="IQQ" onclick="pick(this,'o')">IQQ – Iquique</div>
+      <div class="chip" data-v="ANF" onclick="pick(this,'o')">ANF – Antofagasta</div>
+    </div>
+
+    <div class="clbl">Destino</div>
+    <div class="chips" id="dc2">
+      <div class="chip" data-v="LIM" onclick="pick(this,'d')">LIM – Lima</div>
+      <div class="chip" data-v="BOG" onclick="pick(this,'d')">BOG – Bogotá</div>
+      <div class="chip" data-v="EZE" onclick="pick(this,'d')">EZE – Buenos Aires</div>
+      <div class="chip" data-v="GRU" onclick="pick(this,'d')">GRU – São Paulo</div>
+      <div class="chip" data-v="MIA" onclick="pick(this,'d')">MIA – Miami</div>
+      <div class="chip on" data-v="MAD" onclick="pick(this,'d')">MAD – Madrid</div>
+      <div class="chip" data-v="CDG" onclick="pick(this,'d')">CDG – París</div>
+      <div class="chip" data-v="JFK" onclick="pick(this,'d')">JFK – New York</div>
+      <div class="chip" data-v="FCO" onclick="pick(this,'d')">FCO – Roma</div>
+      <div class="chip" data-v="MXP" onclick="pick(this,'d')">MXP – Milán</div>
+    </div>
+
+    <div class="g4">
+      <div class="fl"><label>Fecha inicio</label><input type="date" id="df"></div>
+      <div class="fl"><label>Fecha fin</label><input type="date" id="dt"></div>
+      <div class="fl"><label>Pasajeros</label><input type="number" id="ad" value="1" min="1" max="9"></div>
+      <div class="fl"><label>Clase</label>
+        <select id="cl">
+          <option value="1">Económica</option>
+          <option value="2">Premium eco</option>
+          <option value="3">Business</option>
+          <option value="4">Primera</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="warn">⚠️ Cada día = 1 crédito SerpApi. Máximo 20 días por búsqueda.</div>
+    <button class="btn" id="sb" onclick="run()">🔍 Buscar precios</button>
+  </div>
+
+  <div id="lb" class="loading-bar" style="display:none"><div class="lf"></div></div>
+  <div id="pi" class="prog" style="display:none"></div>
+  <div id="eb" class="err" style="display:none"></div>
+
+  <div id="res" style="display:none">
+    <div class="metrics">
+      <div class="mc"><div class="lb">Precio más bajo</div><div class="vl gr" id="mn">—</div><div class="sb" id="mnd">—</div></div>
+      <div class="mc"><div class="lb">Precio más alto</div><div class="vl am" id="mx">—</div><div class="sb" id="mxd">—</div></div>
+      <div class="mc"><div class="lb">Promedio</div><div class="vl bl" id="av">—</div><div class="sb" id="cnt">—</div></div>
+    </div>
+    <div class="cal-wrap">
+      <h3>📅 Mapa de precios</h3>
+      <div class="leg">
+        <span class="ld2" style="background:#16a34a"></span> Más barato
+        <span class="ld2" style="background:#d97706"></span> Medio
+        <span class="ld2" style="background:#dc2626"></span> Más caro
+      </div>
+      <div class="cal" id="cal"></div>
+    </div>
+    <div class="tw">
+      <div class="th2">📋 Resultados por precio (<span id="alb">1 pax</span>)</div>
+      <table><thead><tr><th>Fecha</th><th>Precio/pax</th><th>Total</th><th>Aerolínea</th></tr></thead>
+      <tbody id="tb"></tbody></table>
+    </div>
+  </div>
+
+  <div id="es" class="empty">✈️ Ingresa tu API key, elige destino y fechas</div>
+</div>
+
+<script>
+const PROXY = 'https://flight-proxy-one.vercel.app/api/flights';
+let org = 'SCL', dst = 'MAD', results = [];
+
+function pick(el, t) {
+  document.getElementById(t==='o'?'oc':'dc2').querySelectorAll('.chip').forEach(c=>c.classList.remove('on'));
+  el.classList.add('on');
+  if(t==='o') org=el.dataset.v; else dst=el.dataset.v;
+}
+
+const today = new Date();
+const fd = d => d.toISOString().split('T')[0];
+document.getElementById('df').value = fd(new Date(today.getFullYear(),today.getMonth(),today.getDate()+14));
+document.getElementById('dt').value = fd(new Date(today.getFullYear(),today.getMonth(),today.getDate()+21));
+
+function getDates(f,t) {
+  const ds=[],c=new Date(f+'T12:00:00'),e=new Date(t+'T12:00:00');
+  while(c<=e){ds.push(fd(c));c.setDate(c.getDate()+1);}
+  return ds;
+}
+function fdate(s){ return new Date(s+'T12:00:00').toLocaleDateString('es-CL',{weekday:'short',day:'numeric',month:'short'}); }
+function fusd(n,a=1){ return `USD ${Math.round(n*a).toLocaleString('en-US')}`; }
+
+function extractPrice(json) {
+  const all=[...(json.best_flights||[]),...(json.other_flights||[])];
+  if(!all.length) return null;
+  all.sort((a,b)=>(a.price||Infinity)-(b.price||Infinity));
+  const best=all[0];
+  if(!best||typeof best.price!=='number') return null;
+  return { price: best.price, airline: best.flights?.[0]?.airline||'—' };
+}
+
+async function fetchDay(date,key,adults,cls) {
+  const p=new URLSearchParams();
+  p.set('engine','google_flights');
+  p.set('departure_id',org);
+  p.set('arrival_id',dst);
+  p.set('outbound_date',date);
+  p.set('type','2');
+  p.set('adults',String(adults));
+  p.set('travel_class',String(cls));
+  p.set('currency','USD');
+  p.set('api_key',key);
+  const res=await fetch(`${PROXY}?${p.toString()}`);
+  const json=await res.json();
+  if(!res.ok||json.error) throw new Error(json.error||`HTTP ${res.status}`);
+  return json;
+}
+
+async function run() {
+  const key=document.getElementById('apiKey').value.trim();
+  if(!key){showErr('Ingresa tu API key.');return;}
+  const df=document.getElementById('df').value,dt=document.getElementById('dt').value;
+  if(!df||!dt||new Date(dt)<new Date(df)){showErr('Revisa las fechas.');return;}
+  const adults=parseInt(document.getElementById('ad').value)||1;
+  const cls=document.getElementById('cl').value;
+  const dates=getDates(df,dt);
+  if(dates.length>20){showErr('Máximo 20 días.');return;}
+
+  document.getElementById('eb').style.display='none';
+  document.getElementById('res').style.display='none';
+  document.getElementById('es').style.display='none';
+  document.getElementById('lb').style.display='block';
+  document.getElementById('pi').style.display='block';
+  document.getElementById('sb').disabled=true;
+  document.getElementById('sb').textContent='Consultando...';
+  results=[];
+
+  let firstErr=null;
+  for(let i=0;i<dates.length;i++){
+    document.getElementById('pi').textContent=`Consultando ${i+1}/${dates.length}: ${dates[i]}`;
+    try{
+      const json=await fetchDay(dates[i],key,adults,cls);
+      const r=extractPrice(json);
+      if(r) results.push({date:dates[i],price:r.price,airline:r.airline});
+    }catch(e){
+      if(!firstErr) firstErr=e.message;
+      if(e.message&&(e.message.toLowerCase().includes('invalid')||e.message.includes('401'))){
+        showErr('API key inválida.');cleanup();return;
+      }
+    }
+    await new Promise(r=>setTimeout(r,400));
+  }
+  cleanup();
+  if(!results.length){showErr(`No se encontraron vuelos para ${org}→${dst}. ${firstErr||''}`);document.getElementById('es').style.display='block';return;}
+  results.sort((a,b)=>new Date(a.date)-new Date(b.date));
+  render(adults);
+  document.getElementById('alb').textContent=adults===1?'1 pax':`${adults} pax`;
+  document.getElementById('res').style.display='block';
+}
+
+function cleanup(){
+  document.getElementById('lb').style.display='none';
+  document.getElementById('pi').style.display='none';
+  document.getElementById('sb').disabled=false;
+  document.getElementById('sb').textContent='🔍 Buscar precios';
+}
+function showErr(msg){
+  document.getElementById('eb').textContent=msg;
+  document.getElementById('eb').style.display='block';
+}
+
+function render(adults){
+  const ps=results.map(d=>d.price);
+  const mn=Math.min(...ps),mx=Math.max(...ps),av=ps.reduce((a,b)=>a+b,0)/ps.length;
+  const range=mx-mn||1;
+  document.getElementById('mn').textContent=fusd(mn);
+  document.getElementById('mnd').textContent=fdate(results.find(d=>d.price===mn).date);
+  document.getElementById('mx').textContent=fusd(mx);
+  document.getElementById('mxd').textContent=fdate(results.find(d=>d.price===mx).date);
+  document.getElementById('av').textContent=fusd(Math.round(av));
+  document.getElementById('cnt').textContent=`${results.length} fechas con vuelos`;
+
+  const cal=document.getElementById('cal');
+  cal.innerHTML='';
+  ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'].forEach(d=>{cal.innerHTML+=`<div class="dh">${d}</div>`;});
+  const dow=new Date(results[0].date+'T12:00:00').getDay();
+  for(let i=0;i<dow;i++) cal.innerHTML+='<div></div>';
+  results.forEach(item=>{
+    const ratio=(item.price-mn)/range;
+    const cls=item.price===mn?'best':ratio<0.3?'chp':ratio<0.65?'mid':'exp';
+    const d=new Date(item.date+'T12:00:00');
+    cal.innerHTML+=`<div class="dc ${cls}"><div class="dn">${d.getDate()}</div><div class="dp">$${Math.round(item.price)}</div>${item.price===mn?'<div class="bt">Mejor</div>':''}</div>`;
+  });
+
+  const tb=document.getElementById('tb');
+  tb.innerHTML='';
+  [...results].sort((a,b)=>a.price-b.price).forEach(item=>{
+    const ratio=(item.price-mn)/range;
+    const pc=ratio<0.3?'g':ratio<0.65?'m':'r';
+    tb.innerHTML+=`<tr><td>${fdate(item.date)}</td><td><span class="pill ${pc}">${fusd(item.price)}</span>${item.price===mn?'<span class="bbest">Mejor precio</span>':''}</td><td>${adults>1?fusd(item.price,adults):'—'}</td><td style="color:#64748b">${item.airline}</td></tr>`;
+  });
+}
+</script>
+</body>
+</html>
