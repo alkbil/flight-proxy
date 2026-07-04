@@ -10,7 +10,7 @@ body { font-family: system-ui, sans-serif; background: #0f1117; color: #e2e8f0; 
 .container { max-width: 900px; margin: 0 auto; }
 h1 { font-size: 22px; font-weight: 600; margin-bottom: 4px; }
 .subtitle { font-size: 13px; color: #94a3b8; margin-bottom: 1.5rem; }
-.info { background: #1e293b; border: 1px solid #334155; border-radius: 10px; padding: 12px 16px; margin-bottom: 1.25rem; font-size: 13px; color: #7dd3fc; display: flex; align-items: flex-start; gap: 10px; }
+.info { background: #1e293b; border: 1px solid #334155; border-radius: 10px; padding: 12px 16px; margin-bottom: 1.25rem; font-size: 13px; color: #7dd3fc; }
 .card { background: #1e293b; border-radius: 10px; border: 1px solid #334155; padding: 1rem 1.25rem; margin-bottom: 1.25rem; }
 .card h3 { font-size: 14px; font-weight: 500; margin-bottom: 12px; color: #94a3b8; }
 .fl { display: flex; flex-direction: column; gap: 4px; margin-bottom: 10px; }
@@ -20,10 +20,14 @@ h1 { font-size: 22px; font-weight: 600; margin-bottom: 4px; }
 .g4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 10px; margin-bottom: 12px; }
 @media(max-width:600px){ .g4 { grid-template-columns: 1fr 1fr; } }
 .clbl { font-size: 12px; color: #64748b; margin-bottom: 6px; }
-.chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+.section-label { font-size: 11px; font-weight: 600; color: #475569; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px; margin-top: 10px; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
 .chip { font-size: 11px; padding: 4px 10px; border-radius: 20px; border: 1px solid #334155; background: #0f1117; color: #94a3b8; cursor: pointer; transition: all 0.12s; user-select: none; }
 .chip:hover { border-color: #3b82f6; color: #7dd3fc; }
 .chip.on { border-color: #3b82f6; color: #7dd3fc; background: #1e3a5f; font-weight: 500; }
+.chip.domestic { border-color: #334155; }
+.chip.domestic.on { border-color: #8b5cf6; color: #c4b5fd; background: #2e1065; }
+.divider { height: 1px; background: #1e293b; margin: 10px 0; }
 .btn { background: #3b82f6; color: #fff; border: none; border-radius: 8px; padding: 11px 20px; font-size: 14px; font-weight: 500; cursor: pointer; width: 100%; transition: background 0.15s; }
 .btn:hover { background: #2563eb; }
 .btn:disabled { opacity: 0.5; cursor: not-allowed; }
@@ -67,12 +71,13 @@ tr:hover td { background: #0f1117; }
 .bbest { font-size: 10px; background: #3b82f6; color: #fff; border-radius: 4px; padding: 2px 6px; margin-left: 6px; }
 .empty { text-align: center; padding: 3rem 1rem; color: #64748b; font-size: 14px; }
 .warn { background: #2d1f00; border: 1px solid #78350f; border-radius: 8px; padding: 8px 12px; margin-bottom: 12px; font-size: 12px; color: #fbbf24; }
+.domestic-note { font-size: 11px; color: #8b5cf6; background: #2e1065; border: 1px solid #4c1d95; border-radius: 6px; padding: 6px 10px; margin-bottom: 10px; }
 </style>
 </head>
 <body>
 <div class="container">
   <h1>✈️ Comparador de Vuelos Chile</h1>
-  <p class="subtitle">Precios reales de Google Flights · SerpApi + Proxy Vercel</p>
+  <p class="subtitle">Vuelos nacionales e internacionales · Google Flights vía SerpApi</p>
 
   <div class="info">
     ℹ️ API key gratuita en <a href="https://serpapi.com/dashboard" style="color:#7dd3fc" target="_blank">serpapi.com/dashboard</a> · 100 búsquedas/mes gratis
@@ -92,26 +97,54 @@ tr:hover td { background: #0f1117; }
     <div class="clbl">Origen</div>
     <div class="chips" id="oc">
       <div class="chip on" data-v="SCL" onclick="pick(this,'o')">SCL – Santiago</div>
-      <div class="chip" data-v="PMC" onclick="pick(this,'o')">PMC – Puerto Montt</div>
+      <div class="chip" data-v="PMC" onclick="pick(this,'o')">PMC – Pto. Montt</div>
       <div class="chip" data-v="IQQ" onclick="pick(this,'o')">IQQ – Iquique</div>
       <div class="chip" data-v="ANF" onclick="pick(this,'o')">ANF – Antofagasta</div>
+      <div class="chip" data-v="CCP" onclick="pick(this,'o')">CCP – Concepción</div>
+      <div class="chip" data-v="ARI" onclick="pick(this,'o')">ARI – Arica</div>
+      <div class="chip" data-v="PUQ" onclick="pick(this,'o')">PUQ – Punta Arenas</div>
+      <div class="chip" data-v="ZCO" onclick="pick(this,'o')">ZCO – Temuco</div>
     </div>
 
-    <div class="clbl">Destino</div>
+    <div class="divider"></div>
+
+    <div class="section-label">🇨🇱 Destinos nacionales</div>
+    <div class="domestic-note">Vuelos operados por LATAM, Sky y JetSmart dentro de Chile</div>
     <div class="chips" id="dc2">
-      <div class="chip" data-v="LIM" onclick="pick(this,'d')">LIM – Lima</div>
+      <div class="chip domestic" data-v="IQQ" onclick="pick(this,'d')">IQQ – Iquique</div>
+      <div class="chip domestic" data-v="ANF" onclick="pick(this,'d')">ANF – Antofagasta</div>
+      <div class="chip domestic" data-v="CJC" onclick="pick(this,'d')">CJC – Calama</div>
+      <div class="chip domestic" data-v="ARI" onclick="pick(this,'d')">ARI – Arica</div>
+      <div class="chip domestic" data-v="CCP" onclick="pick(this,'d')">CCP – Concepción</div>
+      <div class="chip domestic" data-v="ZCO" onclick="pick(this,'d')">ZCO – Temuco</div>
+      <div class="chip domestic" data-v="PMC" onclick="pick(this,'d')">PMC – Pto. Montt</div>
+      <div class="chip domestic" data-v="PUQ" onclick="pick(this,'d')">PUQ – Punta Arenas</div>
+      <div class="chip domestic" data-v="SCL" onclick="pick(this,'d')">SCL – Santiago</div>
+      <div class="chip domestic" data-v="CPO" onclick="pick(this,'d')">CPO – Copiapó</div>
+      <div class="chip domestic" data-v="LSC" onclick="pick(this,'d')">LSC – La Serena</div>
+      <div class="chip domestic" data-v="MHC" onclick="pick(this,'d')">MHC – Castro</div>
+      <div class="chip domestic" data-v="WPU" onclick="pick(this,'d')">WPU – Pto. Williams</div>
+
+      <div class="divider" style="width:100%;margin:6px 0"></div>
+
+      <div class="section-label" style="width:100%">🌎 Destinos internacionales</div>
+      <div class="chip on" data-v="LIM" onclick="pick(this,'d')">LIM – Lima</div>
       <div class="chip" data-v="BOG" onclick="pick(this,'d')">BOG – Bogotá</div>
       <div class="chip" data-v="EZE" onclick="pick(this,'d')">EZE – Buenos Aires</div>
       <div class="chip" data-v="GRU" onclick="pick(this,'d')">GRU – São Paulo</div>
       <div class="chip" data-v="MIA" onclick="pick(this,'d')">MIA – Miami</div>
-      <div class="chip on" data-v="MAD" onclick="pick(this,'d')">MAD – Madrid</div>
+      <div class="chip" data-v="MAD" onclick="pick(this,'d')">MAD – Madrid</div>
       <div class="chip" data-v="CDG" onclick="pick(this,'d')">CDG – París</div>
       <div class="chip" data-v="JFK" onclick="pick(this,'d')">JFK – New York</div>
       <div class="chip" data-v="FCO" onclick="pick(this,'d')">FCO – Roma</div>
       <div class="chip" data-v="MXP" onclick="pick(this,'d')">MXP – Milán</div>
+      <div class="chip" data-v="MEX" onclick="pick(this,'d')">MEX – Ciudad de México</div>
+      <div class="chip" data-v="MDE" onclick="pick(this,'d')">MDE – Medellín</div>
+      <div class="chip" data-v="CUN" onclick="pick(this,'d')">CUN – Cancún</div>
+      <div class="chip" data-v="LAX" onclick="pick(this,'d')">LAX – Los Ángeles</div>
     </div>
 
-    <div class="g4">
+    <div class="g4" style="margin-top:14px">
       <div class="fl"><label>Fecha inicio</label><input type="date" id="df"></div>
       <div class="fl"><label>Fecha fin</label><input type="date" id="dt"></div>
       <div class="fl"><label>Pasajeros</label><input type="number" id="ad" value="1" min="1" max="9"></div>
@@ -160,7 +193,7 @@ tr:hover td { background: #0f1117; }
 
 <script>
 const PROXY = 'https://flight-proxy-one.vercel.app/api/flights';
-let org = 'SCL', dst = 'MAD', results = [];
+let org = 'SCL', dst = 'LIM', results = [];
 
 function pick(el, t) {
   document.getElementById(t==='o'?'oc':'dc2').querySelectorAll('.chip').forEach(c=>c.classList.remove('on'));
@@ -210,6 +243,7 @@ async function fetchDay(date,key,adults,cls) {
 async function run() {
   const key=document.getElementById('apiKey').value.trim();
   if(!key){showErr('Ingresa tu API key.');return;}
+  if(org===dst){showErr('El origen y destino no pueden ser el mismo.');return;}
   const df=document.getElementById('df').value,dt=document.getElementById('dt').value;
   if(!df||!dt||new Date(dt)<new Date(df)){showErr('Revisa las fechas.');return;}
   const adults=parseInt(document.getElementById('ad').value)||1;
@@ -228,7 +262,7 @@ async function run() {
 
   let firstErr=null;
   for(let i=0;i<dates.length;i++){
-    document.getElementById('pi').textContent=`Consultando ${i+1}/${dates.length}: ${dates[i]}`;
+    document.getElementById('pi').textContent=`Consultando ${i+1}/${dates.length}: ${dates[i]} · ${org} → ${dst}`;
     try{
       const json=await fetchDay(dates[i],key,adults,cls);
       const r=extractPrice(json);
@@ -236,13 +270,17 @@ async function run() {
     }catch(e){
       if(!firstErr) firstErr=e.message;
       if(e.message&&(e.message.toLowerCase().includes('invalid')||e.message.includes('401'))){
-        showErr('API key inválida.');cleanup();return;
+        showErr('API key inválida. Revísala en serpapi.com/dashboard');cleanup();return;
       }
     }
     await new Promise(r=>setTimeout(r,400));
   }
   cleanup();
-  if(!results.length){showErr(`No se encontraron vuelos para ${org}→${dst}. ${firstErr||''}`);document.getElementById('es').style.display='block';return;}
+  if(!results.length){
+    showErr(`No se encontraron vuelos para ${org} → ${dst}. ${firstErr?'Error: '+firstErr:'Puede que Google Flights no tenga esa ruta disponible.'}`);
+    document.getElementById('es').style.display='block';
+    return;
+  }
   results.sort((a,b)=>new Date(a.date)-new Date(b.date));
   render(adults);
   document.getElementById('alb').textContent=adults===1?'1 pax':`${adults} pax`;
