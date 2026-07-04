@@ -1,39 +1,45 @@
-export const config = { runtime: 'edge' };
-
 export default async function handler(req) {
-  // CORS headers para permitir llamadas desde cualquier origen
-  const cors = {
+  const corsHeaders = {
     'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Methods': 'GET, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type',
+    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+    'Access-Control-Allow-Headers': '*',
+    'Access-Control-Max-Age': '86400',
   };
 
   if (req.method === 'OPTIONS') {
-    return new Response(null, { status: 204, headers: cors });
+    return new Response(null, { status: 200, headers: corsHeaders });
   }
-
-  const { searchParams } = new URL(req.url);
-  const apiKey = searchParams.get('api_key');
-  if (!apiKey) {
-    return new Response(JSON.stringify({ error: 'Falta api_key' }), {
-      status: 400, headers: { ...cors, 'Content-Type': 'application/json' }
-    });
-  }
-
-  // Reenviar todos los parámetros a SerpApi
-  const serpParams = new URLSearchParams(searchParams);
-  const serpUrl = `https://serpapi.com/search.json?${serpParams.toString()}`;
 
   try {
-    const res = await fetch(serpUrl);
-    const data = await res.json();
-    return new Response(JSON.stringify(data), {
-      status: res.status,
-      headers: { ...cors, 'Content-Type': 'application/json' }
+    const { searchParams } = new URL(req.url);
+    const apiKey = searchParams.get('api_key');
+
+    if (!apiKey) {
+      return new Response(JSON.stringify({ error: 'Falta api_key' }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    const serpUrl = `https://serpapi.com/search.json?${searchParams.toString()}`;
+    
+    const serpRes = await fetch(serpUrl, {
+      method: 'GET',
+      headers: { 'Accept': 'application/json' },
     });
-  } catch (e) {
-    return new Response(JSON.stringify({ error: e.message }), {
-      status: 500, headers: { ...cors, 'Content-Type': 'application/json' }
+
+    const data = await serpRes.json();
+
+    return new Response(JSON.stringify(data), {
+      status: serpRes.status,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+  } catch (err) {
+    return new Response(JSON.stringify({ error: err.message }), {
+      status: 500,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   }
 }
+
+export const config = { runtime: 'edge' };
